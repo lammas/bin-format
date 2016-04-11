@@ -11,7 +11,7 @@ npm install bin-format
 
 ## Examples
 
-For more usage examples see [tests](../blob/master/test/index.js).
+For more usage examples see [tests](../master/test/index.js).
 
 ```javascript
 var Format = require('bin-format');
@@ -31,7 +31,7 @@ console.log(output);
 ```
 
 ```javascript
-var Format = require('./index');
+var Format = require('bin-format');
 var fmt = new Format()
 	.buffer('header', 4)
 	.nest('chunk', new Format()
