@@ -3,18 +3,6 @@
 var test = require('tape');
 var Format = require('../index');
 
-test('Simple', function(t) {
-	const buf = new Buffer('ab', 'hex');
-	var fmt = new Format().uint8('test');
-	var object = fmt.parse(buf);
-	var output = fmt.write(object);
-
-	t.equals(object.test, 0xab, 'Parsing OK');
-	t.equals(output.length, 1, 'Output: length OK');
-	t.deepEquals(output, buf, 'Output: value OK');
-	t.end();
-});
-
 test('All read/write methods', function(t) {
 	const object = {
 		uint8_test: 42,
@@ -69,6 +57,40 @@ test('All read/write methods', function(t) {
 	t.end();
 });
 
+test('Simple', function(t) {
+	const buf = new Buffer('ab', 'hex');
+	var fmt = new Format().uint8('test');
+	var object = fmt.parse(buf);
+	var output = fmt.write(object);
+
+	t.equals(object.test, 0xab, 'Parsing OK');
+	t.equals(output.length, 1, 'Output: length OK');
+	t.deepEquals(output, buf, 'Output: value OK');
+	t.end();
+});
+
+test('List', function(t) {
+	const buf = new Buffer('baadf00dff01ff02ff03ff04', 'hex');
+
+	var fmt = new Format()
+		.buffer('header', 4)
+		.list('list', 4, new Format()
+			.uint8('hdr')
+			.uint8('val'));
+
+	var object = fmt.parse(buf);
+	var output = fmt.write(object);
+
+	t.deepEquals(object.header, new Buffer('baadf00d', 'hex'), 'Header OK');
+	t.deepEquals(object.list, [
+		{ hdr: 255, val: 1 },
+		{ hdr: 255, val: 2 },
+		{ hdr: 255, val: 3 },
+		{ hdr: 255, val: 4 }
+	], 'Parsed list OK');
+	t.deepEquals(output, buf, 'Output value OK');
+	t.end();
+});
 
 test('Nested', function(t) {
 	const buf = new Buffer('0102a1a2', 'hex');

@@ -42,6 +42,11 @@ class Format {
 		return this;
 	}
 
+	list(name, count, format) {
+		this.steps.push({ type: 'list', name: name,  count: count, format: format });
+		return this;
+	}
+
 	parse(buffer, reader) {
 		if (!reader)
 			reader = new Reader(buffer);
@@ -63,7 +68,14 @@ class Format {
 					value = isClassType(step.construct) ? new step.construct(value) : step.construct(value);
 				}
 				result[step.name] = value;
-				continue;
+			}
+
+			if (step.type == 'list') {
+				var list = [];
+				for (var i = 0; i < step.count; i++) {
+					list.push(step.format.parse(buffer, reader));
+				}
+				result[step.name] = list;
 			}
 
 			if (step.type == 'nest') {
@@ -72,7 +84,6 @@ class Format {
 					value = isClassType(step.construct) ? new step.construct(value) : step.construct(value);
 				}
 				result[step.name] = value;
-				continue;
 			}
 		}
 
@@ -93,7 +104,14 @@ class Format {
 					value = value.serialize();
 				}
 				f.apply(writer, [value]);
-				continue;
+			}
+
+			if (step.type == 'list') {
+				var list = data[step.name];
+				for (var i = 0; i < list.length; i++) {
+					var value = list[i];
+					step.format.write(value, writer);
+				}
 			}
 
 			if (step.type == 'nest') {
@@ -102,7 +120,6 @@ class Format {
 					value = value.serialize();
 				}
 				step.format.write(value, writer);
-				continue;
 			}
 		}
 
