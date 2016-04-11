@@ -85,6 +85,7 @@ Methods:
 * `doubleBE(name, constructor)` - Declares a big endian double (8 bytes) field.
 * `doubleLE(name, constructor)` - Declares a little endian double (8 bytes) field.
 * `buffer(name, length, constructor)` - Declares a field for an arbitrary length buffer.
+	* `length` - Length of the buffer. To read until the end use `'eof'`.
 
 Arguments:
 

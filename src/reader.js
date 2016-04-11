@@ -87,6 +87,8 @@ class Reader {
 	}
 
 	buffer(length) {
+		if (length === 'eof')
+			length = this.input.length - this.position;
 		var value = this.input.slice(this.position, this.position + length);
 		this.position += length;
 		return value;
