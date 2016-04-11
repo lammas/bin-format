@@ -142,7 +142,38 @@ test('Read until EOF', function(t) {
 	var output = fmt.write(object);
 
 	t.equals(object.this_is_zero, 0x00, 'Parsing OK');
-	t.deepEquals(object.one_to_eff, new Buffer('0102030405060708090a0b0c0d0e0f', 'hex'), 'Parsing OK');
+	t.deepEquals(object.one_to_eff, buf.slice(1), 'Parsing OK');
+	t.deepEquals(output, buf, 'Output: value OK');
+	t.end();
+});
+
+test('Variable length structures', function(t) {
+	const buf = new Buffer('dade05fa01fa02fb03ff04fb05', 'hex');
+	var fmt = new Format()
+		.uint16BE('header')
+		.uint8('count')
+		.custom('values', function(state) {
+			return new Format()
+				.list('list', state.count, new Format()
+					.uint8('type')
+					.uint8('value')
+				);
+		});
+
+	var object = fmt.parse(buf);
+	var output = fmt.write(object);
+
+	t.equals(object.header, 0xdade, 'Header OK');
+	t.equals(object.count, 5, 'Count OK');
+	t.deepEquals(object.values, {
+		list: [
+			{ type: 250, value: 1 },
+			{ type: 250, value: 2 },
+			{ type: 251, value: 3 },
+			{ type: 255, value: 4 },
+			{ type: 251, value: 5 }
+		]
+	}, 'Object OK');
 	t.deepEquals(output, buf, 'Output: value OK');
 	t.end();
 });

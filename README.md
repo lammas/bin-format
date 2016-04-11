@@ -97,6 +97,9 @@ Arguments:
 
 * `list(name, count, format)` - Declares a list field which contains `count` structures defined by `format`.
 * `nest(name, format, constructor)` - Creates a nested structure defined by `format`.
+* `custom(name, callback)` - Allows dynamic creation of nested sections.
+	* `callback` is a `function(state)` where `state` is the parsed object at the time of parsing when .custom() was invoked.
+	* The callback must return a `new Format()`.
 
 
 ### The constructor thing

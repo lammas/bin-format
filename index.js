@@ -47,6 +47,11 @@ class Format {
 		return this;
 	}
 
+	custom(name, callback) {
+		this.steps.push({ type: 'custom', name: name, callback: callback });
+		return this;
+	}
+
 	parse(buffer, reader) {
 		if (!reader)
 			reader = new Reader(buffer);
@@ -85,6 +90,13 @@ class Format {
 				}
 				result[step.name] = value;
 			}
+
+			if (step.type == 'custom') {
+				var fmt = step.callback(result);
+				if (!(fmt instanceof Format))
+					throw new Error('Error: .custom() callback must return an instance of Format');
+				result[step.name] = fmt.parse(buffer, reader);
+			}
 		}
 
 		return result;
@@ -120,6 +132,13 @@ class Format {
 					value = value.serialize();
 				}
 				step.format.write(value, writer);
+			}
+
+			if (step.type == 'custom') {
+				var fmt = step.callback(data);
+				if (!(fmt instanceof Format))
+					throw new Error('Error: .custom() callback must return an instance of Format');
+				fmt.write(data[step.name], writer);
 			}
 		}
 
