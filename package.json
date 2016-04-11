@@ -1,0 +1,19 @@
+{
+  "name": "bin-format",
+  "version": "1.0.0",
+  "description": "Simple two way binary format serialization",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lammas/bin-format.git"
+  },
+  "main": "index.js",
+  "scripts": {
+    "test": "node test/index | tap-spec"
+  },
+  "author": "lammas",
+  "license": "MIT",
+  "devDependencies": {
+    "tap-spec": "^4.1.1",
+    "tape": "^4.5.1"
+  }
+}
