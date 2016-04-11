@@ -17,25 +17,25 @@ class Writer {
 		this.buffer = append(this.buffer, buffer);
 	}
 
-	uint16BE() {
+	uint16BE(value) {
 		var buffer = new Buffer(2);
 		buffer.writeUInt16BE(value, 0);
 		this.buffer = append(this.buffer, buffer);
 	}
 
-	uint16LE() {
+	uint16LE(value) {
 		var buffer = new Buffer(2);
 		buffer.writeUInt16LE(value, 0);
 		this.buffer = append(this.buffer, buffer);
 	}
 
-	uint32BE() {
+	uint32BE(value) {
 		var buffer = new Buffer(4);
 		buffer.writeUInt32BE(value, 0);
 		this.buffer = append(this.buffer, buffer);
 	}
 
-	uint32LE() {
+	uint32LE(value) {
 		var buffer = new Buffer(4);
 		buffer.writeUInt32LE(value, 0);
 		this.buffer = append(this.buffer, buffer);
@@ -43,53 +43,53 @@ class Writer {
 
 	int8(value) {
 		var buffer = new Buffer(1);
-		buffer.writeUInt8(value, 0);
+		buffer.writeInt8(value, 0);
 		this.buffer = append(this.buffer, buffer);
 	}
 
-	int16BE() {
+	int16BE(value) {
 		var buffer = new Buffer(2);
-		buffer.writeUInt16BE(value, 0);
+		buffer.writeInt16BE(value, 0);
 		this.buffer = append(this.buffer, buffer);
 	}
 
-	int16LE() {
+	int16LE(value) {
 		var buffer = new Buffer(2);
-		buffer.writeUInt16LE(value, 0);
+		buffer.writeInt16LE(value, 0);
 		this.buffer = append(this.buffer, buffer);
 	}
 
-	int32BE() {
+	int32BE(value) {
 		var buffer = new Buffer(4);
-		buffer.writeUInt32BE(value, 0);
+		buffer.writeInt32BE(value, 0);
 		this.buffer = append(this.buffer, buffer);
 	}
 
-	int32LE() {
+	int32LE(value) {
 		var buffer = new Buffer(4);
-		buffer.writeUInt32LE(value, 0);
+		buffer.writeInt32LE(value, 0);
 		this.buffer = append(this.buffer, buffer);
 	}
 
-	floatBE() {
+	floatBE(value) {
 		var buffer = new Buffer(4);
 		buffer.writeFloatBE(value, 0);
 		this.buffer = append(this.buffer, buffer);
 	}
 
-	floatLE() {
+	floatLE(value) {
 		var buffer = new Buffer(4);
 		buffer.writeFloatLE(value, 0);
 		this.buffer = append(this.buffer, buffer);
 	}
 
-	doubleBE() {
+	doubleBE(value) {
 		var buffer = new Buffer(8);
 		buffer.writeDoubleBE(value, 0);
 		this.buffer = append(this.buffer, buffer);
 	}
 
-	doubleLE() {
+	doubleLE(value) {
 		var buffer = new Buffer(8);
 		buffer.writeDoubleLE(value, 0);
 		this.buffer = append(this.buffer, buffer);
