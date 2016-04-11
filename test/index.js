@@ -15,6 +15,58 @@ test('Simple', function(t) {
 	t.end();
 });
 
+test('All read/write methods', function(t) {
+	const object = {
+		uint8_test: 42,
+		uint16BE_test: 1001,
+		uint16LE_test: 1001,
+		uint32BE_test: 500000,
+		uint32LE_test: 500000,
+
+		int8_test: -42,
+		int16BE_test: -1001,
+		int16LE_test: -1001,
+		int32BE_test: -500000,
+		int32LE_test: -500000,
+
+		floatBE_test: 0.123456,
+		floatLE_test: 0.123456,
+
+		doubleBE_test: 0.1234567891,
+		doubleLE_test: 0.1234567891,
+	};
+
+	var fmt = new Format()
+		.uint8('uint8_test')
+		.uint16BE('uint16BE_test')
+		.uint16LE('uint16LE_test')
+		.uint32BE('uint32BE_test')
+		.uint32LE('uint32LE_test')
+
+		.int8('int8_test')
+		.int16BE('int16BE_test')
+		.int16LE('int16LE_test')
+		.int32BE('int32BE_test')
+		.int32LE('int32LE_test')
+
+		.floatBE('floatBE_test')
+		.floatLE('floatLE_test')
+		.doubleBE('doubleBE_test')
+		.doubleLE('doubleLE_test')
+		;
+
+	var output = fmt.write(object);
+	var parsed = fmt.parse(output);
+
+	// fixes float inaccuracy for more convenient testing
+	parsed.floatBE_test = Math.round(parsed.floatBE_test * 1000000) / 1000000;
+	parsed.floatLE_test = Math.round(parsed.floatLE_test * 1000000) / 1000000;
+
+	t.deepEquals(object, parsed, 'Serialization OK');
+	t.end();
+});
+
+
 test('Nested', function(t) {
 	const buf = new Buffer('0102a1a2', 'hex');
 	var fmt = new Format()
