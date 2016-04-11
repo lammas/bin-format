@@ -85,6 +85,9 @@ class Format {
 
 			if (step.type == 'nest') {
 				var value = data[step.name];
+				if (typeof(value) == 'object' && 'serialize' in value) {
+					value = value.serialize();
+				}
 				step.format.write(value, writer);
 				continue;
 			}
