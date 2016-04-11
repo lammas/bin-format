@@ -14,9 +14,11 @@ class Format {
 		this.steps = [];
 
 		var scope = this;
-		function addReadFunction(fnName) {
+		function addStepFunction(fnName) {
+			if (fnName in scope)
+				return;
 			scope[fnName] = function(name, construct) {
-				scope.steps.push({ type: 'data', get: fnName, name: name, construct: construct });
+				scope.steps.push({ type: 'data', fn: fnName, name: name, construct: construct });
 				return scope;
 			};
 		}
@@ -26,8 +28,13 @@ class Format {
 			var member = names[i];
 			if (member == 'constructor')
 				continue;
-			addReadFunction(member);
+			addStepFunction(member);
 		}
+	}
+
+	buffer(name, length, construct) {
+		this.steps.push({ type: 'data', fn: 'buffer', name: name, length: length, construct: construct });
+		return this;
 	}
 
 	nest(name, format, construct) {
@@ -44,8 +51,14 @@ class Format {
 		for (var i = 0; i < this.steps.length; i++) {
 			var step = this.steps[i];
 			if (step.type == 'data') {
-				var f = reader[step.get];
-				var value = f.apply(reader);
+				var f = reader[step.fn];
+
+				var value;
+				if (step.fn == 'buffer')
+					value = f.apply(reader, [step.length]);
+				else
+					value = f.apply(reader);
+
 				if (step.construct) {
 					value = isClassType(step.construct) ? new step.construct(value) : step.construct(value);
 				}
@@ -74,7 +87,7 @@ class Format {
 			var step = this.steps[i];
 
 			if (step.type == 'data') {
-				var f = writer[step.get];
+				var f = writer[step.fn];
 				var value = data[step.name];
 				if (typeof(value) == 'object' && 'serialize' in value) {
 					value = value.serialize();
@@ -93,7 +106,7 @@ class Format {
 			}
 		}
 
-		return writer.buffer;
+		return writer.output;
 	}
 }
 

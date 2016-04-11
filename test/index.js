@@ -34,6 +34,8 @@ test('All read/write methods', function(t) {
 
 		doubleBE_test: 0.1234567891,
 		doubleLE_test: 0.1234567891,
+
+		buffer_test: new Buffer('deadbeef', 'hex'),
 	};
 
 	var fmt = new Format()
@@ -53,6 +55,7 @@ test('All read/write methods', function(t) {
 		.floatLE('floatLE_test')
 		.doubleBE('doubleBE_test')
 		.doubleLE('doubleLE_test')
+		.buffer('buffer_test', 4)
 		;
 
 	var output = fmt.write(object);
