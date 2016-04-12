@@ -64,7 +64,7 @@ test('Simple', function(t) {
 	var output = fmt.write(object);
 
 	t.equals(object.test, 0xab, 'Parsing OK');
-	t.deepEquals(output, buf, 'Output: value OK');
+	t.deepEquals(output, buf, 'Output value OK');
 	t.end();
 });
 
@@ -103,7 +103,7 @@ test('Nested', function(t) {
 	t.equals(object.a, 1, 'Parsing OK');
 	t.equals(object.b, 2, 'Parsing OK');
 	t.deepEquals(object.sub, { suba: 0xa1, subb: 0xa2 }, 'Parsing nested OK');
-	t.deepEquals(output, buf, 'Output: value OK');
+	t.deepEquals(output, buf, 'Output value OK');
 	t.end();
 });
 
@@ -128,7 +128,7 @@ test('Class', function(t) {
 
 	t.equals(object.a.value, 1, 'Parsing OK');
 	t.equals(object.b, 2, 'Parsing OK');
-	t.deepEquals(output, buf, 'Output: value OK');
+	t.deepEquals(output, buf, 'Output value OK');
 	t.end();
 });
 
@@ -143,7 +143,7 @@ test('Read until EOF', function(t) {
 
 	t.equals(object.this_is_zero, 0x00, 'Parsing OK');
 	t.deepEquals(object.one_to_eff, buf.slice(1), 'Parsing OK');
-	t.deepEquals(output, buf, 'Output: value OK');
+	t.deepEquals(output, buf, 'Output value OK');
 	t.end();
 });
 
@@ -174,6 +174,6 @@ test('Variable length structures', function(t) {
 			{ type: 251, value: 5 }
 		]
 	}, 'Object OK');
-	t.deepEquals(output, buf, 'Output: value OK');
+	t.deepEquals(output, buf, 'Output value OK');
 	t.end();
 });
