@@ -66,6 +66,13 @@ console.log(output);
 
 * `new Format()` - Creates a new format declaration.
 
+* `parse(buffer)` - Parses the buffer and returns an object.
+
+* `write(object)` - Serializes the object and returns a buffer.
+
+* `length()` - Returns the predicted length of the described format in bytes.
+This will throw if there are any `custom` sections anywhere in the format declaration.
+
 ### Data fields:
 
 Methods:
@@ -124,8 +131,3 @@ class A {
 	}
 }
 ```
-
-### Parsing and writing
-
-* `parse(buffer)` - Parses the buffer and returns an object.
-* `write(object)` - Serializes the object and returns a buffer.
