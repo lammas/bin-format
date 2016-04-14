@@ -136,7 +136,7 @@ class Format {
 
 			if (step.type == 'list') {
 				var list = [];
-				for (var i = 0; i < step.count; i++) {
+				for (var j = 0; j < step.count; j++) {
 					list.push(step.format.parse(buffer, reader));
 				}
 				result[step.name] = list;
@@ -179,8 +179,8 @@ class Format {
 
 			if (step.type == 'list') {
 				var list = data[step.name];
-				for (var i = 0; i < list.length; i++) {
-					var value = list[i];
+				for (var j = 0; j < list.length; j++) {
+					var value = list[j];
 					step.format.write(value, writer);
 				}
 			}
