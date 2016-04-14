@@ -77,6 +77,8 @@ test('List', function(t) {
 			.uint8('hdr')
 			.uint8('val'));
 
+	t.equals(fmt.length(), 4 + 4 * 2, 'Length prediction OK');
+
 	var object = fmt.parse(buf);
 	var output = fmt.write(object);
 
