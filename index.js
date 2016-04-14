@@ -9,6 +9,35 @@ function isClassType(f) {
 	return /^class\s/.test(Function.prototype.toString.call(f));
 }
 
+function getAtomicSize(typeName) {
+	switch (typeName) {
+		case 'int8':
+		case 'uint8':
+			return 1;
+
+		case 'int16BE':
+		case 'int16LE':
+		case 'uint16BE':
+		case 'uint16LE':
+			return 2;
+
+		case 'int32BE':
+		case 'int32LE':
+		case 'uint32BE':
+		case 'uint32LE':
+		case 'floatBE':
+		case 'floatLE':
+			return 4;
+
+		case 'doubleBE':
+		case 'doubleLE':
+			return 8;
+
+		default:
+			throw new Error('Unexpected type: ' + typeName);
+	}
+}
+
 class Format {
 	constructor() {
 		this.steps = [];
@@ -50,6 +79,36 @@ class Format {
 	custom(name, callback) {
 		this.steps.push({ type: 'custom', name: name, callback: callback });
 		return this;
+	}
+
+	length() {
+		var length = 0;
+
+		for (var i = 0; i < this.steps.length; i++) {
+			var step = this.steps[i];
+			if (step.type == 'data') {
+				if (step.fn == 'buffer') {
+					length += step.length;
+				}
+				else {
+					length += getAtomicSize(step.fn);
+				}
+			}
+
+			if (step.type == 'list') {
+				length += step.count * step.format.length();
+			}
+
+			if (step.type == 'nest') {
+				length += step.format.length();
+			}
+
+			if (step.type == 'custom') {
+				throw new Error('Cannot use the predictive length() with variable length sections');
+			}
+		}
+
+		return length;
 	}
 
 	parse(buffer, reader) {
