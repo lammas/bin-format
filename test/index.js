@@ -179,3 +179,28 @@ test('Variable length structures', function(t) {
 	t.deepEquals(output, buf, 'Output value OK');
 	t.end();
 });
+
+test('Instances of same format', function(t) {
+	var Item = new Format()
+		.uint8('ff')
+		.uint8('value');
+
+	var fmt = new Format()
+		.nest('item_0', Item)
+		.nest('item_1', Item)
+		.nest('item_2', Item)
+		.nest('item_3', Item);
+
+	const buf = new Buffer('ff01ff02ff03ff04', 'hex');
+	var object = fmt.parse(buf);
+	var output = fmt.write(object);
+
+	t.deepEquals(object, {
+		item_0: { ff: 255, value: 1 },
+		item_1: { ff: 255, value: 2 },
+		item_2: { ff: 255, value: 3 },
+		item_3: { ff: 255, value: 4 }
+	}, 'Object OK');
+	t.deepEquals(output, buf, 'Output value OK');
+	t.end();
+});
