@@ -3,6 +3,17 @@
 var Reader = require('./src/reader');
 var Writer = require('./src/writer');
 
+function extend() {
+	for (var i=1; i<arguments.length; i++) {
+		for (var key in arguments[i]) {
+			if (!arguments[i].hasOwnProperty(key))
+				continue;
+			arguments[0][key] = arguments[i][key];
+		}
+	}
+	return arguments[0];
+}
+
 function isClassType(f) {
 	if (typeof(f) != 'function')
 		return false;
@@ -83,11 +94,12 @@ class Format {
 
 	length() {
 		var length = 0;
-
 		for (var i = 0; i < this.steps.length; i++) {
 			var step = this.steps[i];
 			if (step.type == 'data') {
 				if (step.fn == 'buffer') {
+					if (step.length === 'eof')
+						throw new Error('Cannot use the predictive length() with variable length sections (.buffer() with EOF)');
 					length += step.length;
 				}
 				else {
@@ -104,10 +116,9 @@ class Format {
 			}
 
 			if (step.type == 'custom') {
-				throw new Error('Cannot use the predictive length() with variable length sections');
+				throw new Error('Cannot use the predictive length() with variable length sections (.custom())');
 			}
 		}
-
 		return length;
 	}
 
@@ -161,9 +172,18 @@ class Format {
 		return result;
 	}
 
-	write(data, writer) {
-		if (!writer)
-			writer = new Writer();
+	write(data, options) {
+		var opt = extend({
+			writer: null,
+			blocksize: 1024
+		}, options);
+
+		var end = false;
+		if (!opt.writer) {
+			end = true;
+			opt.writer = new Writer(parseInt(opt.blocksize));
+		}
+		var writer = opt.writer;
 
 		for (var i = 0; i < this.steps.length; i++) {
 			var step = this.steps[i];
@@ -181,7 +201,7 @@ class Format {
 				var list = data[step.name];
 				for (var j = 0; j < list.length; j++) {
 					var value = list[j];
-					step.format.write(value, writer);
+					step.format.write(value, opt);
 				}
 			}
 
@@ -190,17 +210,19 @@ class Format {
 				if (typeof(value) == 'object' && 'serialize' in value) {
 					value = value.serialize();
 				}
-				step.format.write(value, writer);
+				step.format.write(value, opt);
 			}
 
 			if (step.type == 'custom') {
 				var fmt = step.callback(data);
 				if (!(fmt instanceof Format))
 					throw new Error('Error: .custom() callback must return an instance of Format');
-				fmt.write(data[step.name], writer);
+				fmt.write(data[step.name], opt);
 			}
 		}
 
+		if (end)
+			writer.end();
 		return writer.output;
 	}
 }

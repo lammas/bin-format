@@ -46,7 +46,7 @@ test('All read/write methods', function(t) {
 		.buffer('buffer_test', 4)
 		;
 
-	var output = fmt.write(object);
+	var output = fmt.write(object, { blocksize: 64 });
 	var parsed = fmt.parse(output);
 
 	// fixes float inaccuracy for more convenient testing

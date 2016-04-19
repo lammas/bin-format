@@ -1,104 +1,124 @@
 'use strict';
 
+var DEFAULT_BLOCKSIZE = 1024;
+
 function append(source, buffer) {
 	if (!source)
 		return buffer;
 	return Buffer.concat([source, buffer]);
 }
 
+function grow(buffer, blocksize) {
+	return append(buffer, new Buffer(blocksize));
+}
+
 class Writer {
-	constructor() {
-		this.output = null;
+	constructor(blocksize) {
+		this.blocksize = blocksize || DEFAULT_BLOCKSIZE;
+		this.position = 0;
+		this.output = grow(null, this.blocksize);
+	}
+
+	allocate(n) {
+		while (this.output.length - this.position < n) {
+			this.output = grow(this.output, this.blocksize);
+		}
 	}
 
 	uint8(value) {
-		var buffer = new Buffer(1);
-		buffer.writeUInt8(value, 0);
-		this.output = append(this.output, buffer);
+		this.allocate(1);
+		this.output.writeUInt8(value, this.position++);
 	}
 
 	uint16BE(value) {
-		var buffer = new Buffer(2);
-		buffer.writeUInt16BE(value, 0);
-		this.output = append(this.output, buffer);
+		this.allocate(2);
+		this.output.writeUInt16BE(value, this.position);
+		this.position += 2;
 	}
 
 	uint16LE(value) {
-		var buffer = new Buffer(2);
-		buffer.writeUInt16LE(value, 0);
-		this.output = append(this.output, buffer);
+		this.allocate(2);
+		this.output.writeUInt16LE(value, this.position);
+		this.position += 2;
 	}
 
 	uint32BE(value) {
-		var buffer = new Buffer(4);
-		buffer.writeUInt32BE(value, 0);
-		this.output = append(this.output, buffer);
+		this.allocate(4);
+		this.output.writeUInt32BE(value, this.position);
+		this.position += 4;
 	}
 
 	uint32LE(value) {
-		var buffer = new Buffer(4);
-		buffer.writeUInt32LE(value, 0);
-		this.output = append(this.output, buffer);
+		this.allocate(4);
+		this.output.writeUInt32LE(value, this.position);
+		this.position += 4;
 	}
 
 	int8(value) {
-		var buffer = new Buffer(1);
-		buffer.writeInt8(value, 0);
-		this.output = append(this.output, buffer);
+		this.allocate(1);
+		this.output.writeInt8(value, this.position++);
 	}
 
 	int16BE(value) {
-		var buffer = new Buffer(2);
-		buffer.writeInt16BE(value, 0);
-		this.output = append(this.output, buffer);
+		this.allocate(2);
+		this.output.writeInt16BE(value, this.position);
+		this.position += 2;
 	}
 
 	int16LE(value) {
-		var buffer = new Buffer(2);
-		buffer.writeInt16LE(value, 0);
-		this.output = append(this.output, buffer);
+		this.allocate(2);
+		this.output.writeInt16LE(value, this.position);
+		this.position += 2;
 	}
 
 	int32BE(value) {
-		var buffer = new Buffer(4);
-		buffer.writeInt32BE(value, 0);
-		this.output = append(this.output, buffer);
+		this.allocate(4);
+		this.output.writeInt32BE(value, this.position);
+		this.position += 4;
 	}
 
 	int32LE(value) {
-		var buffer = new Buffer(4);
-		buffer.writeInt32LE(value, 0);
-		this.output = append(this.output, buffer);
+		this.allocate(4);
+		this.output.writeInt32LE(value, this.position);
+		this.position += 4;
 	}
 
 	floatBE(value) {
-		var buffer = new Buffer(4);
-		buffer.writeFloatBE(value, 0);
-		this.output = append(this.output, buffer);
+		this.allocate(4);
+		this.output.writeFloatBE(value, this.position);
+		this.position += 4;
 	}
 
 	floatLE(value) {
-		var buffer = new Buffer(4);
-		buffer.writeFloatLE(value, 0);
-		this.output = append(this.output, buffer);
+		this.allocate(4);
+		this.output.writeFloatLE(value, this.position);
+		this.position += 4;
 	}
 
 	doubleBE(value) {
-		var buffer = new Buffer(8);
-		buffer.writeDoubleBE(value, 0);
-		this.output = append(this.output, buffer);
+		this.allocate(8);
+		this.output.writeDoubleBE(value, this.position);
+		this.position += 8;
 	}
 
 	doubleLE(value) {
-		var buffer = new Buffer(8);
-		buffer.writeDoubleLE(value, 0);
-		this.output = append(this.output, buffer);
+		this.allocate(8);
+		this.output.writeDoubleLE(value, this.position);
+		this.position += 8;
 	}
 
 	buffer(value) {
-		this.output = append(this.output, value);
+		if (value.length == 0)
+			return;
+		this.allocate(value.length);
+		var b = this.output.slice(this.position, this.position + value.length);
+		value.copy(b);
+		this.position += value.length;
 	}
 
+	end() {
+		this.output = this.output.slice(0, this.position);
+	}
 }
 
 module.exports = Writer;
