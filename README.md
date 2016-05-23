@@ -2,9 +2,11 @@
 
 Simple two way binary format serialization
 
+[![NPM](https://nodei.co/npm/bin-format.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/bin-format/)
+
 ## Install
 
-```
+```sh
 npm install bin-format
 ```
 
