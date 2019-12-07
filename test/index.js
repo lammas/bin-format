@@ -23,7 +23,7 @@ test('All read/write methods', function(t) {
 		doubleBE_test: 0.1234567891,
 		doubleLE_test: 0.1234567891,
 
-		buffer_test: new Buffer('deadbeef', 'hex'),
+		buffer_test: Buffer.from('deadbeef', 'hex'),
 	};
 
 	var fmt = new Format()
@@ -58,7 +58,7 @@ test('All read/write methods', function(t) {
 });
 
 test('Simple', function(t) {
-	const buf = new Buffer('ab', 'hex');
+	const buf = Buffer.from('ab', 'hex');
 	var fmt = new Format().uint8('test');
 	var object = fmt.parse(buf);
 	var output = fmt.write(object);
@@ -69,7 +69,7 @@ test('Simple', function(t) {
 });
 
 test('List', function(t) {
-	const buf = new Buffer('baadf00dff01ff02ff03ff04', 'hex');
+	const buf = Buffer.from('baadf00dff01ff02ff03ff04', 'hex');
 
 	var fmt = new Format()
 		.buffer('header', 4)
@@ -82,7 +82,7 @@ test('List', function(t) {
 	var object = fmt.parse(buf);
 	var output = fmt.write(object);
 
-	t.deepEquals(object.header, new Buffer('baadf00d', 'hex'), 'Header OK');
+	t.deepEquals(object.header, Buffer.from('baadf00d', 'hex'), 'Header OK');
 	t.deepEquals(object.list, [
 		{ hdr: 255, val: 1 },
 		{ hdr: 255, val: 2 },
@@ -94,7 +94,7 @@ test('List', function(t) {
 });
 
 test('Nested', function(t) {
-	const buf = new Buffer('0102a1a2', 'hex');
+	const buf = Buffer.from('0102a1a2', 'hex');
 	var fmt = new Format()
 		.uint8('a')
 		.uint8('b')
@@ -121,7 +121,7 @@ test('Class', function(t) {
 		}
 	}
 
-	const buf = new Buffer('0102', 'hex');
+	const buf = Buffer.from('0102', 'hex');
 	var fmt = new Format()
 		.uint8('a', A)
 		.uint8('b');
@@ -135,7 +135,7 @@ test('Class', function(t) {
 });
 
 test('Read until EOF', function(t) {
-	const buf = new Buffer('000102030405060708090a0b0c0d0e0f', 'hex');
+	const buf = Buffer.from('000102030405060708090a0b0c0d0e0f', 'hex');
 	var fmt = new Format()
 		.uint8('this_is_zero')
 		.buffer('one_to_eff', 'eof');
@@ -150,7 +150,7 @@ test('Read until EOF', function(t) {
 });
 
 test('Variable length structures', function(t) {
-	const buf = new Buffer('dade05fa01fa02fb03ff04fb05', 'hex');
+	const buf = Buffer.from('dade05fa01fa02fb03ff04fb05', 'hex');
 	var fmt = new Format()
 		.uint16BE('header')
 		.uint8('count')
@@ -180,6 +180,28 @@ test('Variable length structures', function(t) {
 	t.end();
 });
 
+test('Variable length structures based on data length', function(t) {
+	const buf = Buffer.from('dadeff00ff00ff00ff00cc', 'hex');
+	var fmt = new Format()
+		.uint16BE('header')
+		.custom('data', function(state, buffer, rw) {
+			return new Format().buffer('data', buffer.length - rw.position - 1);
+		})
+		.uint8('checksum');
+
+	var object = fmt.parse(buf);
+	console.log(object);
+	var output = fmt.write(object);
+
+	t.equals(object.header, 0xdade, 'Header OK');
+	t.deepEquals(object.data, {
+		data: Buffer.from('ff00ff00ff00ff00', 'hex')
+	}, 'Data OK');
+	t.equals(object.checksum, 0xcc, 'Checksum OK');
+	t.deepEquals(output, buf, 'Output value OK');
+	t.end();
+});
+
 test('Instances of same format', function(t) {
 	var Item = new Format()
 		.uint8('ff')
@@ -191,7 +213,7 @@ test('Instances of same format', function(t) {
 		.nest('item_2', Item)
 		.nest('item_3', Item);
 
-	const buf = new Buffer('ff01ff02ff03ff04', 'hex');
+	const buf = Buffer.from('ff01ff02ff03ff04', 'hex');
 	var object = fmt.parse(buf);
 	var output = fmt.write(object);
 

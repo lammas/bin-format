@@ -23,7 +23,7 @@ var fmt = new Format()
 	.uint8('c')
 	.uint8('d');
 
-var object = fmt.parse(new Buffer('deadbeef', 'hex'));
+var object = fmt.parse(Buffer.from('deadbeef', 'hex'));
 console.log(object);
 // { a: 222, b: 173, c: 190, d: 239 }
 
@@ -45,7 +45,7 @@ var fmt = new Format()
 	)
 	.uint16BE('afaf');
 
-const buf = new Buffer('baadf00ddeadbeefff01ff02ff03ff04afaf', 'hex');
+const buf = Buffer.from('baadf00ddeadbeefff01ff02ff03ff04afaf', 'hex');
 var object = fmt.parse(buf);
 console.log(require('util').inspect(object, { depth: null }));
 // { header: <Buffer ba ad f0 0d>,
@@ -107,7 +107,10 @@ Arguments:
 * `list(name, count, format)` - Declares a list field which contains `count` structures defined by `format`.
 * `nest(name, format, constructor)` - Creates a nested structure defined by `format`.
 * `custom(name, callback)` - Allows dynamic creation of nested sections.
-	* `callback` is a `function(state)` where `state` is the parsed object at the time of parsing when .custom() was invoked.
+	* `callback` is a `function(state, buffer, rw)` where:
+		* `state` is the parsed object at the time of parsing when .custom() was invoked
+		* `buffer` is the entire data buffer passed to the parser
+		* `rw` is either Reader or Writer class (depending if we're writing or parsing) that provides access to the current position in the buffer (`rw.position`)
 	* The callback must return a `new Format()`.
 
 

@@ -162,7 +162,7 @@ class Format {
 			}
 
 			if (step.type == 'custom') {
-				var fmt = step.callback(result);
+				var fmt = step.callback(result, buffer, reader);
 				if (!(fmt instanceof Format))
 					throw new Error('Error: .custom() callback must return an instance of Format');
 				result[step.name] = fmt.parse(buffer, reader);
@@ -214,7 +214,7 @@ class Format {
 			}
 
 			if (step.type == 'custom') {
-				var fmt = step.callback(data);
+				var fmt = step.callback(data, writer.output, writer);
 				if (!(fmt instanceof Format))
 					throw new Error('Error: .custom() callback must return an instance of Format');
 				fmt.write(data[step.name], opt);

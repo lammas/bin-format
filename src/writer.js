@@ -9,7 +9,7 @@ function append(source, buffer) {
 }
 
 function grow(buffer, blocksize) {
-	return append(buffer, new Buffer(blocksize));
+	return append(buffer, Buffer.alloc(blocksize));
 }
 
 class Writer {
