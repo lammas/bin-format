@@ -54,11 +54,17 @@ class Format {
 		this.steps = [];
 
 		var scope = this;
-		function addStepFunction(fnName) {
+		function addStepFunctions(fnName) {
 			if (fnName in scope)
 				return;
+
 			scope[fnName] = function(name, construct) {
 				scope.steps.push({ type: 'data', fn: fnName, name: name, construct: construct });
+				return scope;
+			};
+
+			scope[fnName + 'array'] = function(name, length, construct) {
+				scope.steps.push({ type: 'array', fn: fnName, name: name, length: length, construct: construct });
 				return scope;
 			};
 		}
@@ -68,8 +74,13 @@ class Format {
 			var member = names[i];
 			if (member == 'constructor')
 				continue;
-			addStepFunction(member);
+			addStepFunctions(member);
 		}
+	}
+
+	text(name, byteLength, encoding, construct) {
+		this.steps.push({ type: 'data', fn: 'text', name: name, byteLength: byteLength, encoding: encoding, construct: construct });
+		return this;
 	}
 
 	buffer(name, length, construct) {
@@ -102,17 +113,28 @@ class Format {
 						throw new Error('Cannot use the predictive length() with variable length sections (.buffer() with EOF)');
 					length += step.length;
 				}
+				else if (step.fn == 'text') {
+					length += step.byteLength;
+				}
 				else {
 					length += getAtomicSize(step.fn);
 				}
+				continue;
+			}
+
+			if (step.type == 'array') {
+				length += step.length * getAtomicSize(step.fn);
+				continue;
 			}
 
 			if (step.type == 'list') {
 				length += step.count * step.format.length();
+				continue;
 			}
 
 			if (step.type == 'nest') {
 				length += step.format.length();
+				continue;
 			}
 
 			if (step.type == 'custom') {
@@ -132,17 +154,38 @@ class Format {
 			var step = this.steps[i];
 			if (step.type == 'data') {
 				var f = reader[step.fn];
-
 				var value;
-				if (step.fn == 'buffer')
+
+				if (step.fn == 'buffer') {
 					value = f.apply(reader, [step.length]);
-				else
+				}
+				else if (step.fn == 'text') {
+					value = f.apply(reader, [step.byteLength, step.encoding]);
+				}
+				else {
 					value = f.apply(reader);
+				}
 
 				if (step.construct) {
 					value = isClassType(step.construct) ? new step.construct(value) : step.construct(value);
 				}
 				result[step.name] = value;
+				continue;
+			}
+
+			if (step.type == 'array') {
+				var f = reader[step.fn];
+
+				var value = new Array(step.length);
+				for (var i = 0; i < step.length; ++i) {
+					value[i] = f.apply(reader);
+				}
+
+				if (step.construct) {
+					value = isClassType(step.construct) ? new step.construct(value) : step.construct(value);
+				}
+				result[step.name] = value;
+				continue;
 			}
 
 			if (step.type == 'list') {
@@ -151,6 +194,7 @@ class Format {
 					list.push(step.format.parse(buffer, reader));
 				}
 				result[step.name] = list;
+				continue;
 			}
 
 			if (step.type == 'nest') {
@@ -159,6 +203,7 @@ class Format {
 					value = isClassType(step.construct) ? new step.construct(value) : step.construct(value);
 				}
 				result[step.name] = value;
+				continue;
 			}
 
 			if (step.type == 'custom') {
@@ -166,6 +211,7 @@ class Format {
 				if (!(fmt instanceof Format))
 					throw new Error('Error: .custom() callback must return an instance of Format');
 				result[step.name] = fmt.parse(buffer, reader);
+				continue;
 			}
 		}
 
@@ -194,7 +240,26 @@ class Format {
 				if (typeof(value) == 'object' && 'serialize' in value) {
 					value = value.serialize();
 				}
-				f.apply(writer, [value]);
+
+				if (step.fn == 'text') {
+					f.apply(writer, [value, step.encoding]);
+				}
+				else {
+					f.apply(writer, [value]);
+				}
+				continue;
+			}
+
+			if (step.type == 'array') {
+				var f = writer[step.fn];
+				var value = data[step.name];
+				if (typeof(value) == 'object' && 'serialize' in value) {
+					value = value.serialize();
+				}
+
+				for (var i = 0; i < step.length; ++i) {
+					f.apply(writer, [value[i]]);
+				}
 			}
 
 			if (step.type == 'list') {
@@ -203,6 +268,7 @@ class Format {
 					var value = list[j];
 					step.format.write(value, opt);
 				}
+				continue;
 			}
 
 			if (step.type == 'nest') {
@@ -211,6 +277,7 @@ class Format {
 					value = value.serialize();
 				}
 				step.format.write(value, opt);
+				continue;
 			}
 
 			if (step.type == 'custom') {
@@ -218,6 +285,7 @@ class Format {
 				if (!(fmt instanceof Format))
 					throw new Error('Error: .custom() callback must return an instance of Format');
 				fmt.write(data[step.name], opt);
+				continue;
 			}
 		}
 

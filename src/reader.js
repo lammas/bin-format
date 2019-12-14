@@ -93,6 +93,14 @@ class Reader {
 		this.position += length;
 		return value;
 	}
+
+	text(byteLength, encoding) {
+		if (!encoding || encoding == 'ascii')
+			encoding = undefined;
+		var buffer = this.buffer(byteLength);
+		var value = new TextDecoder(encoding).decode(buffer);
+		return value;
+	}
 }
 
 module.exports = Reader;

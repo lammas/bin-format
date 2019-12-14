@@ -190,7 +190,6 @@ test('Variable length structures based on data length', function(t) {
 		.uint8('checksum');
 
 	var object = fmt.parse(buf);
-	console.log(object);
 	var output = fmt.write(object);
 
 	t.equals(object.header, 0xdade, 'Header OK');
@@ -222,6 +221,49 @@ test('Instances of same format', function(t) {
 		item_1: { ff: 255, value: 2 },
 		item_2: { ff: 255, value: 3 },
 		item_3: { ff: 255, value: 4 }
+	}, 'Object OK');
+	t.deepEquals(output, buf, 'Output value OK');
+	t.end();
+});
+
+test('Flat arrays', function(t) {
+	const buf = Buffer.from('ff01020304', 'hex');
+	var fmt = new Format()
+		.uint8('ff')
+		.uint8array('numbers', 4);
+
+	var object = fmt.parse(buf);
+	var output = fmt.write(object);
+
+	t.deepEquals(object, {
+		ff: 255,
+		numbers: [1, 2, 3, 4]
+	}, 'Object OK');
+	t.deepEquals(output, buf, 'Output value OK');
+	t.end();
+});
+
+test('Text', function(t) {
+	const buf = Buffer.from('68656c6c6f20776f726c64', 'hex');
+	var fmt = new Format().text('text', 11);
+	var object = fmt.parse(buf);
+	var output = fmt.write(object);
+
+	t.deepEquals(object, {
+		text: 'hello world'
+	}, 'Object OK');
+	t.deepEquals(output, buf, 'Output value OK');
+	t.end();
+});
+
+test('UTF-8 text', function(t) {
+	const buf = Buffer.from('c2a2c2a2', 'hex');
+	var fmt = new Format().text('text', 4, 'utf-8');
+	var object = fmt.parse(buf);
+	var output = fmt.write(object);
+
+	t.deepEquals(object, {
+		text: '¢¢'
 	}, 'Object OK');
 	t.deepEquals(output, buf, 'Output value OK');
 	t.end();

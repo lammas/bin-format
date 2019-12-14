@@ -11,7 +11,7 @@ npm install bin-format
 ```
 
 
-## Examples
+## Usage examples
 
 For more usage examples see [tests](../master/test/index.js).
 
@@ -63,6 +63,10 @@ console.log(output);
 // <Buffer ba ad f0 0d de ad be ef ff 01 ff 02 ff 03 ff 04 af af>
 ```
 
+TypeScript:
+```typescript
+import Format from 'bin-format';
+```
 
 ## API
 
@@ -77,35 +81,53 @@ This will throw if there are any `custom` sections anywhere in the format declar
 
 ### Data fields:
 
-Methods:
-
-* `uint8(name, constructor)` - Declares a uint8 field.
-* `uint16BE(name, constructor)` - Declares a big endian uint16 field.
-* `uint16LE(name, constructor)` - Declares a little endian uint16 field.
-* `uint32BE(name, constructor)` - Declares a big endian uint32 field.
-* `uint32LE(name, constructor)` - Declares a little endian uint32 field.
-* `int8(name, constructor)` - Declares a int8 field.
-* `int16BE(name, constructor)` - Declares a big endian int16 field.
-* `int16LE(name, constructor)` - Declares a little endian int16 field.
-* `int32BE(name, constructor)` - Declares a big endian int32 field.
-* `int32LE(name, constructor)` - Declares a little endian int32 field.
-* `floatBE(name, constructor)` - Declares a big endian float (4 bytes) field.
-* `floatLE(name, constructor)` - Declares a little endian float (4 bytes) field.
-* `doubleBE(name, constructor)` - Declares a big endian double (8 bytes) field.
-* `doubleLE(name, constructor)` - Declares a little endian double (8 bytes) field.
-* `buffer(name, length, constructor)` - Declares a field for an arbitrary length buffer.
-	* `length` - Length of the buffer. To read until the end use `'eof'`.
-
-Arguments:
+Common arguments:
 
 * `name` - This will be the field name in the resulting object.
-* `constructor` - (Optional) Function or Class that will be constructed for that field.
+* `constructor` - (Optional) Function or Class that will be constructed for that field (see more at the end).
+
+
+Methods:
+
+* `uint8(name, constructor?)` - Declares a uint8 field.
+* `uint16BE(name, constructor?)` - Declares a big endian uint16 field.
+* `uint16LE(name, constructor?)` - Declares a little endian uint16 field.
+* `uint32BE(name, constructor?)` - Declares a big endian uint32 field.
+* `uint32LE(name, constructor?)` - Declares a little endian uint32 field.
+* `int8(name, constructor?)` - Declares a int8 field.
+* `int16BE(name, constructor?)` - Declares a big endian int16 field.
+* `int16LE(name, constructor?)` - Declares a little endian int16 field.
+* `int32BE(name, constructor?)` - Declares a big endian int32 field.
+* `int32LE(name, constructor?)` - Declares a little endian int32 field.
+* `floatBE(name, constructor?)` - Declares a big endian float (4 bytes) field.
+* `floatLE(name, constructor?)` - Declares a little endian float (4 bytes) field.
+* `doubleBE(name, constructor?)` - Declares a big endian double (8 bytes) field.
+* `doubleLE(name, constructor?)` - Declares a little endian double (8 bytes) field.
+
+* `uint8array(name, length, constructor?)` - Declares a uint8 array field.
+* `uint16BEarray(name, length, constructor?)` - Declares a big endian uint16 array field.
+* `uint16LEarray(name, length, constructor?)` - Declares a little endian uint16 array field.
+* `uint32BEarray(name, length, constructor?)` - Declares a big endian uint32 array field.
+* `uint32LEarray(name, length, constructor?)` - Declares a little endian uint32 array field.
+* `int8array(name, length, constructor?)` - Declares a int8 array field.
+* `int16BEarray(name, length, constructor?)` - Declares a big endian int16 array field.
+* `int16LEarray(name, length, constructor?)` - Declares a little endian int16 array field.
+* `int32BEarray(name, length, constructor?)` - Declares a big endian int32 array field.
+* `int32LEarray(name, length, constructor?)` - Declares a little endian int32 array field.
+* `floatBEarray(name, length, constructor?)` - Declares a big endian float (4 bytes) array field.
+* `floatLEarray(name, length, constructor?)` - Declares a little endian float (4 bytes) array field.
+* `doubleBEarray(name, length, constructor?)` - Declares a big endian double (8 bytes) array field.
+* `doubleLEarray(name, length, constructor?)` - Declares a little endian double (8 bytes) array field.
+
+* `text(name, byteLength, encoding?, constructor?)` - Declares a text field that will be encoded/decoded using TextEncoder/TextDecoder classes
+* `buffer(name, length, constructor?)` - Declares a field for an arbitrary length buffer.
+	* `length` - Length of the buffer. To read until the end use `'eof'`.
 
 
 ### Control structures:
 
 * `list(name, count, format)` - Declares a list field which contains `count` structures defined by `format`.
-* `nest(name, format, constructor)` - Creates a nested structure defined by `format`.
+* `nest(name, format, constructor?)` - Creates a nested structure defined by `format`.
 * `custom(name, callback)` - Allows dynamic creation of nested sections.
 	* `callback` is a `function(state, buffer, rw)` where:
 		* `state` is the parsed object at the time of parsing when .custom() was invoked

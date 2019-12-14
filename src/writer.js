@@ -116,6 +116,13 @@ class Writer {
 		this.position += value.length;
 	}
 
+	text(value, encoding) {
+		if (!encoding || encoding == 'ascii')
+			encoding = undefined;
+		var uint8array = new TextEncoder(encoding).encode(value);
+		this.buffer(Buffer.from(uint8array));
+	}
+
 	end() {
 		this.output = this.output.slice(0, this.position);
 	}
