@@ -268,3 +268,27 @@ test('UTF-8 text', function(t) {
 	t.deepEquals(output, buf, 'Output value OK');
 	t.end();
 });
+
+test('List EOF', function(t) {
+	var Item = new Format()
+		.uint8('ff')
+		.uint8('value');
+
+	var fmt = new Format()
+		.listEof('items', Item);
+
+	const buf = Buffer.from('ff01ff02ff03ff04', 'hex');
+	var object = fmt.parse(buf);
+	var output = fmt.write(object);
+
+	t.deepEquals(object, {
+		items: [
+			{ ff: 255, value: 1 },
+			{ ff: 255, value: 2 },
+			{ ff: 255, value: 3 },
+			{ ff: 255, value: 4 }
+		]
+	}, 'Object OK');
+	t.deepEquals(output, buf, 'Output value OK');
+	t.end();
+});

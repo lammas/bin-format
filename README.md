@@ -127,6 +127,7 @@ Methods:
 ### Control structures:
 
 * `list(name, count, format)` - Declares a list field which contains `count` structures defined by `format`.
+* `listEof(name, format)` - Declares a list field which contains structures defined by `format` until the end of buffer.
 * `nest(name, format, constructor?)` - Creates a nested structure defined by `format`.
 * `custom(name, callback)` - Allows dynamic creation of nested sections.
 	* `callback` is a `function(state, buffer, rw)` where:

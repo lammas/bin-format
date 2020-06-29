@@ -5,6 +5,7 @@ export default class Format {
 
 	nest(name: string, format: Format, constructor?: any): Format;
 	list(name: string, count: number, format: Format): Format;
+	listEof(name: string, format: Format): Format;
 	custom(name: string, callback: Function): Format;
 
 	uint8(name: string, constructor?: any): Format;

@@ -98,6 +98,11 @@ class Format {
 		return this;
 	}
 
+	listEof(name, format) {
+		this.steps.push({ type: 'listEof', name: name, format: format });
+		return this;
+	}
+
 	custom(name, callback) {
 		this.steps.push({ type: 'custom', name: name, callback: callback });
 		return this;
@@ -139,6 +144,10 @@ class Format {
 
 			if (step.type == 'custom') {
 				throw new Error('Cannot use the predictive length() with variable length sections (.custom())');
+			}
+
+			if (step.type == 'listEof') {
+				throw new Error('Cannot use the predictive length() with variable length sections (.listEof())');
 			}
 		}
 		return length;
@@ -191,6 +200,15 @@ class Format {
 			if (step.type == 'list') {
 				var list = [];
 				for (var j = 0; j < step.count; j++) {
+					list.push(step.format.parse(buffer, reader));
+				}
+				result[step.name] = list;
+				continue;
+			}
+
+			if (step.type == 'listEof') {
+				var list = [];
+				while (reader.position < buffer.length) {
 					list.push(step.format.parse(buffer, reader));
 				}
 				result[step.name] = list;
@@ -263,6 +281,15 @@ class Format {
 			}
 
 			if (step.type == 'list') {
+				var list = data[step.name];
+				for (var j = 0; j < list.length; j++) {
+					var value = list[j];
+					step.format.write(value, opt);
+				}
+				continue;
+			}
+
+			if (step.type == 'listEof') {
 				var list = data[step.name];
 				for (var j = 0; j < list.length; j++) {
 					var value = list[j];
