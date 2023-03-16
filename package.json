@@ -1,6 +1,6 @@
 {
   "name": "bin-format",
-  "version": "1.4.3",
+  "version": "1.4.4",
   "description": "Simple two way binary format serialization",
   "repository": {
     "type": "git",
@@ -13,9 +13,8 @@
   "author": "lammas",
   "license": "MIT",
   "devDependencies": {
-    "tap-spec": "^5.0.0",
-    "tape": "^4.11.0",
+    "tap-spec": "^2.2.2",
+    "tape": "^4.16.2",
     "trim": "0.0.3"
-  },
-  "dependencies": {}
+  }
 }
